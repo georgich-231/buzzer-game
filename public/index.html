@@ -37,10 +37,6 @@
       padding: 16px;
     }
 
-    h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; }
-    h2 { font-size: 1.4rem; font-weight: 700; }
-    h3 { font-size: 1.1rem; font-weight: 600; }
-
     .logo {
       font-size: 3rem;
       font-weight: 900;
@@ -62,7 +58,6 @@
       width: 100%;
       max-width: 420px;
     }
-
     .card + .card { margin-top: 16px; }
 
     .card-title {
@@ -74,7 +69,7 @@
       margin-bottom: 16px;
     }
 
-    input {
+    input[type="text"], input[type="number"] {
       width: 100%;
       padding: 12px 16px;
       background: var(--surface2);
@@ -137,14 +132,13 @@
     .btn-buzz:disabled { background: var(--buzz-disabled); color: #4b5563; box-shadow: none; }
 
     @keyframes pulse-ring {
-      0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5), 0 0 60px rgba(245, 158, 11, 0.4); }
-      70% { box-shadow: 0 0 0 20px rgba(245, 158, 11, 0), 0 0 60px rgba(245, 158, 11, 0.4); }
-      100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0), 0 0 60px rgba(245, 158, 11, 0.4); }
+      0% { box-shadow: 0 0 0 0 rgba(245,158,11,0.5), 0 0 60px rgba(245,158,11,0.4); }
+      70% { box-shadow: 0 0 0 20px rgba(245,158,11,0), 0 0 60px rgba(245,158,11,0.4); }
+      100% { box-shadow: 0 0 0 0 rgba(245,158,11,0), 0 0 60px rgba(245,158,11,0.4); }
     }
 
     .error { color: var(--red); font-size: 0.875rem; margin-top: -6px; margin-bottom: 8px; }
 
-    /* Room screen */
     #room-screen { width: 100%; max-width: 640px; }
 
     .room-header {
@@ -167,9 +161,7 @@
       color: var(--accent-light);
       cursor: pointer;
       user-select: all;
-      position: relative;
     }
-
     .code-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; display: block; margin-bottom: 2px; }
 
     .round-badge {
@@ -184,11 +176,7 @@
 
     .section { margin-bottom: 20px; }
 
-    .player-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+    .player-list { display: flex; flex-direction: column; gap: 8px; }
 
     .player-row {
       display: flex;
@@ -200,190 +188,120 @@
       padding: 10px 14px;
       transition: border-color 0.2s;
     }
-    .player-row.buzzed { border-color: var(--green); }
     .player-row.you { border-color: var(--accent); }
 
     .player-name { font-weight: 600; font-size: 0.95rem; }
-    .player-score { font-weight: 800; font-size: 1rem; color: var(--accent-light); }
-    .player-rank { font-size: 0.8rem; font-weight: 700; margin-left: 8px; }
-    .rank-1 { color: #fbbf24; }
-    .rank-2 { color: #9ca3af; }
-    .rank-3 { color: #b45309; }
 
     .you-tag {
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--accent-light);
-      background: rgba(124, 58, 237, 0.2);
-      border-radius: 4px;
-      padding: 2px 6px;
-      margin-left: 8px;
-    }
-
-    .admin-tag {
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--yellow);
-      background: rgba(234, 179, 8, 0.15);
-      border-radius: 4px;
-      padding: 2px 6px;
-      margin-left: 8px;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--accent-light); background: rgba(124,58,237,0.2);
+      border-radius: 4px; padding: 2px 6px; margin-left: 8px;
     }
 
     .buzz-center {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-      padding: 20px 0;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 20px; padding: 20px 0;
     }
-
-    .buzz-status {
-      font-size: 1rem;
-      color: var(--text-muted);
-      font-weight: 600;
-      text-align: center;
-    }
-    .buzz-status.active { color: var(--buzz-active); }
+    .buzz-status { font-size: 1rem; color: var(--text-muted); font-weight: 600; text-align: center; }
     .buzz-status.go { color: var(--green); font-size: 1.3rem; }
 
     .controls { display: flex; flex-direction: column; gap: 10px; }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+    .waiting-msg { text-align: center; color: var(--text-muted); font-size: 0.95rem; padding: 24px; }
 
-    .divider {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 16px 0;
+    /* Buzz order list */
+    .buzz-list { display: flex; flex-direction: column; gap: 8px; }
+    .buzz-row {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px 16px;
+      transition: border-color 0.2s, opacity 0.2s;
+    }
+    .buzz-row.current {
+      border-color: var(--buzz-active);
+      box-shadow: 0 0 12px rgba(245,158,11,0.25);
+    }
+    .buzz-row.done { opacity: 0.5; }
+    .buzz-place { font-size: 1.4rem; width: 36px; text-align: center; }
+    .buzz-name { flex: 1; font-weight: 700; }
+    .buzz-pts {
+      font-size: 0.85rem; font-weight: 700; padding: 3px 10px;
+      border-radius: 20px; background: var(--surface);
+    }
+    .buzz-pts.awarded { color: var(--green); }
+    .buzz-pts.waiting { color: var(--text-muted); }
+    .buzz-pts.answering { color: var(--buzz-active); }
+
+    .answering-tag {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--buzz-active); background: rgba(245,158,11,0.15);
+      border-radius: 4px; padding: 2px 6px; margin-left: 4px;
     }
 
-    .waiting-msg {
+    /* Timer */
+    .answer-timer { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 20px 0; }
+    .timer-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+    .timer-answering { font-size: 1.1rem; font-weight: 700; color: var(--buzz-active); }
+    .timer-circle { position: relative; width: 120px; height: 120px; }
+    .timer-circle svg { transform: rotate(-90deg); }
+    .timer-circle-bg { fill: none; stroke: var(--surface2); stroke-width: 8; }
+    .timer-circle-fg { fill: none; stroke: var(--buzz-active); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear, stroke 0.3s; }
+    .timer-number { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 900; color: var(--buzz-active); transition: color 0.3s; }
+    .timer-circle.urgent .timer-circle-fg { stroke: var(--red); }
+    .timer-circle.urgent .timer-number { color: var(--red); }
+
+    /* Points award */
+    .award-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
       text-align: center;
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .award-box-name {
+      font-size: 1.2rem; font-weight: 800; color: var(--text); margin-bottom: 4px;
+    }
+    .award-box-label {
+      font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;
+    }
+    .award-row {
+      display: flex; gap: 10px; align-items: center;
+    }
+    .award-row input {
+      margin-bottom: 0; text-align: center; font-size: 1.4rem;
+      font-weight: 900; width: 100px; flex-shrink: 0;
     }
 
-    .podium {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .podium-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px 16px;
-    }
-    .podium-place { font-size: 1.5rem; width: 36px; text-align: center; }
-    .podium-name { flex: 1; font-weight: 700; }
-    .podium-pts { font-size: 0.85rem; color: var(--text-muted); }
-
-    .scoreboard {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+    .scoreboard { display: flex; flex-direction: column; gap: 6px; }
     .score-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 14px;
+      display: flex; align-items: center; gap: 12px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 14px;
     }
     .score-row.winner { border-color: var(--yellow); }
     .score-position { width: 24px; font-weight: 800; color: var(--text-muted); font-size: 0.85rem; }
     .score-name { flex: 1; font-weight: 700; }
     .score-pts { font-weight: 800; font-size: 1.1rem; color: var(--accent-light); }
 
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 20px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      opacity: 0;
-      transition: opacity 0.2s;
-      pointer-events: none;
-      z-index: 100;
-      white-space: nowrap;
+    .section-title {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;
     }
-    .toast.show { opacity: 1; }
 
-    .hidden { display: none !important; }
-
-    .rounds-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
+    .rounds-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
     .rounds-row label { font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; }
     .rounds-row input { margin-bottom: 0; text-align: center; width: 80px; }
 
-    .section-title {
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 10px;
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 20px;
+      font-weight: 600; font-size: 0.9rem; opacity: 0;
+      transition: opacity 0.2s; pointer-events: none; z-index: 100; white-space: nowrap;
     }
-
-    .answer-timer {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      padding: 20px 0;
-    }
-    .timer-label {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-    .timer-answering {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--accent-light);
-    }
-    .timer-circle {
-      position: relative;
-      width: 120px;
-      height: 120px;
-    }
-    .timer-circle svg {
-      transform: rotate(-90deg);
-    }
-    .timer-circle-bg { fill: none; stroke: var(--surface2); stroke-width: 8; }
-    .timer-circle-fg { fill: none; stroke: var(--buzz-active); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear, stroke 0.3s; }
-    .timer-number {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.2rem;
-      font-weight: 900;
-      color: var(--buzz-active);
-      transition: color 0.3s;
-    }
-    .timer-circle.urgent .timer-circle-fg { stroke: var(--red); }
-    .timer-circle.urgent .timer-number { color: var(--red); }
+    .toast.show { opacity: 1; }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
@@ -433,7 +351,6 @@
       <div class="section-title">Players (<span id="player-count">0</span>)</div>
       <div id="lobby-player-list" class="player-list"></div>
     </div>
-
     <div id="admin-lobby-controls" class="hidden">
       <hr class="divider" />
       <div class="rounds-row">
@@ -447,14 +364,16 @@
     </div>
   </div>
 
-  <!-- PLAYING / ROUND ACTIVE / ROUND TIMER / ROUND RESULTS -->
+  <!-- GAME -->
   <div id="game-section" class="hidden">
-    <div id="buzz-section" class="buzz-center">
-      <div id="buzz-status" class="buzz-status">Waiting for round to start...</div>
+
+    <!-- Buzz button (shown during round_active) -->
+    <div id="buzz-section" class="buzz-center hidden">
+      <div id="buzz-status" class="buzz-status">Waiting...</div>
       <button id="buzz-btn" class="btn-buzz" disabled onclick="doBuzz()">BUZZ!</button>
     </div>
 
-    <!-- Answer timer -->
+    <!-- Answer timer (shown during round_timer) -->
     <div id="answer-timer-section" class="answer-timer hidden">
       <div class="timer-label">Time to answer</div>
       <div id="timer-answering" class="timer-answering"></div>
@@ -468,15 +387,27 @@
       </div>
     </div>
 
-    <hr class="divider" />
-
-    <!-- Buzz order live -->
-    <div id="buzz-order-section" class="section hidden">
-      <div class="section-title">Buzz Order</div>
-      <div id="buzz-order-list" class="podium"></div>
+    <!-- Points award (shown during round_awarding, admin only) -->
+    <div id="award-section" class="hidden">
+      <div class="award-box">
+        <div class="award-box-name" id="award-player-name"></div>
+        <div class="award-box-label">How many points?</div>
+        <div class="award-row">
+          <input type="number" id="points-input" min="0" max="999" value="0" />
+          <button class="btn-green" onclick="awardPoints()">Award Points</button>
+        </div>
+      </div>
     </div>
 
-    <!-- Scoreboard (always visible during game) -->
+    <hr class="divider" />
+
+    <!-- Buzz order -->
+    <div id="buzz-order-section" class="section hidden">
+      <div class="section-title">Buzz Order</div>
+      <div id="buzz-order-list" class="buzz-list"></div>
+    </div>
+
+    <!-- Scoreboard -->
     <div class="section">
       <div class="section-title">Scoreboard</div>
       <div id="game-scoreboard" class="scoreboard"></div>
@@ -484,15 +415,13 @@
 
     <!-- Admin controls -->
     <div id="admin-game-controls" class="controls hidden">
-      <button id="btn-start-round" class="btn-green" onclick="startRound()">Open Buzzer</button>
+      <button id="btn-start-round" class="btn-green hidden" onclick="startRound()">Open Buzzer</button>
       <button id="btn-end-round" class="btn-red hidden" onclick="endRound()">Close Buzzer</button>
       <button id="btn-already-answered" class="btn-green hidden" onclick="alreadyAnswered()">Already Answered ✓</button>
       <button id="btn-next-round" class="btn-ghost hidden" onclick="nextRound()">Next Round →</button>
     </div>
 
-    <div id="player-game-wait" class="waiting-msg hidden">
-      Host is preparing the next round...
-    </div>
+    <div id="player-game-wait" class="waiting-msg hidden"></div>
   </div>
 
   <!-- GAME OVER -->
@@ -520,10 +449,8 @@ let gameState = null;
 let players = [];
 let hasBuzzed = false;
 let timerInterval = null;
+const TIMER_CIRCUMFERENCE = 327;
 
-const TIMER_CIRCUMFERENCE = 327; // 2 * pi * 52
-
-// ---- Helpers ----
 function show(id) { document.getElementById(id).classList.remove('hidden'); }
 function hide(id) { document.getElementById(id).classList.add('hidden'); }
 function showToast(msg, dur = 2000) {
@@ -533,7 +460,6 @@ function showToast(msg, dur = 2000) {
   setTimeout(() => t.classList.remove('show'), dur);
 }
 
-// ---- Landing ----
 function createRoom() {
   const name = document.getElementById('create-name').value.trim();
   const err = document.getElementById('create-error');
@@ -541,10 +467,7 @@ function createRoom() {
   err.classList.add('hidden');
   socket.emit('create-room', { name }, (res) => {
     if (!res.ok) { err.textContent = res.error; err.classList.remove('hidden'); return; }
-    myRoomCode = res.code;
-    isAdmin = true;
-    myName = name;
-    enterRoom();
+    myRoomCode = res.code; isAdmin = true; myName = name; enterRoom();
   });
 }
 
@@ -557,28 +480,21 @@ function joinRoom() {
   err.classList.add('hidden');
   socket.emit('join-room', { code, name }, (res) => {
     if (!res.ok) { err.textContent = res.error; err.classList.remove('hidden'); return; }
-    myRoomCode = res.code;
-    isAdmin = false;
-    myName = name;
-    enterRoom();
+    myRoomCode = res.code; isAdmin = false; myName = name; enterRoom();
   });
 }
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    if (!document.getElementById('landing-screen').classList.contains('hidden')) {
-      if (document.activeElement === document.getElementById('create-name')) createRoom();
-      else joinRoom();
-    }
+  if (e.key === 'Enter' && !document.getElementById('landing-screen').classList.contains('hidden')) {
+    if (document.activeElement === document.getElementById('create-name')) createRoom();
+    else if (document.activeElement !== document.getElementById('points-input')) joinRoom();
   }
-  // Space bar buzz
   if (e.code === 'Space' && !document.getElementById('room-screen').classList.contains('hidden')) {
     const btn = document.getElementById('buzz-btn');
     if (!btn.disabled) { e.preventDefault(); doBuzz(); }
   }
 });
 
-// ---- Room entry ----
 function enterRoom() {
   hide('landing-screen');
   show('room-screen');
@@ -590,7 +506,6 @@ function copyCode() {
   navigator.clipboard.writeText(myRoomCode).then(() => showToast('Room code copied!'));
 }
 
-// ---- Socket events ----
 socket.on('room-update', (data) => {
   players = data.players;
   gameState = data.state;
@@ -599,7 +514,7 @@ socket.on('room-update', (data) => {
 
 socket.on('buzz-update', (buzzOrder) => {
   gameState.buzzOrder = buzzOrder;
-  renderBuzzOrder(buzzOrder);
+  renderBuzzOrder(buzzOrder, gameState.currentAnswererIndex);
   const myEntry = buzzOrder.find(b => b.name === myName);
   if (myEntry) {
     hasBuzzed = true;
@@ -620,11 +535,9 @@ socket.on('promoted-to-admin', () => {
   renderRoom();
 });
 
-// ---- Render ----
 function renderRoom() {
   const phase = gameState.phase;
 
-  // Round badge
   if (phase !== 'lobby') {
     show('round-display');
     document.getElementById('round-display').textContent = `Round ${gameState.round} / ${gameState.totalRounds}`;
@@ -632,173 +545,143 @@ function renderRoom() {
     hide('round-display');
   }
 
-  // Phase label
   const phaseLabels = {
-    lobby: 'Lobby',
-    playing: 'Waiting for round',
-    round_active: 'Round active — buzz in!',
-    round_results: 'Round results',
-    game_over: 'Game over',
+    lobby: 'Lobby', playing: 'Waiting for round',
+    round_active: 'Buzz in!', round_timer: 'Answering...',
+    round_awarding: 'Awarding points', round_results: 'Round results', game_over: 'Game over',
   };
   document.getElementById('phase-label').textContent = phaseLabels[phase] || '';
 
   if (phase === 'lobby') {
-    show('lobby-section');
-    hide('game-section');
-    hide('gameover-section');
-    stopTimer();
-    renderLobby();
+    show('lobby-section'); hide('game-section'); hide('gameover-section');
+    stopTimer(); renderLobby();
   } else if (phase === 'game_over') {
-    hide('lobby-section');
-    hide('game-section');
-    show('gameover-section');
-    stopTimer();
-    renderGameOver();
+    hide('lobby-section'); hide('game-section'); show('gameover-section');
+    stopTimer(); renderGameOver();
   } else {
-    hide('lobby-section');
-    show('game-section');
-    hide('gameover-section');
+    hide('lobby-section'); show('game-section'); hide('gameover-section');
     renderGame(phase);
   }
 }
 
 function renderLobby() {
-  const list = document.getElementById('lobby-player-list');
   document.getElementById('player-count').textContent = players.length;
-  list.innerHTML = players.map(p => `
+  document.getElementById('lobby-player-list').innerHTML = players.map(p => `
     <div class="player-row ${p.name === myName ? 'you' : ''}">
-      <span class="player-name">${esc(p.name)}
-        ${p.name === myName ? '<span class="you-tag">You</span>' : ''}
-      </span>
-    </div>
-  `).join('');
-
-  if (isAdmin) {
-    show('admin-lobby-controls');
-    hide('player-lobby-wait');
-  } else {
-    hide('admin-lobby-controls');
-    show('player-lobby-wait');
-  }
+      <span class="player-name">${esc(p.name)}${p.name === myName ? '<span class="you-tag">You</span>' : ''}</span>
+    </div>`).join('');
+  if (isAdmin) { show('admin-lobby-controls'); hide('player-lobby-wait'); }
+  else { hide('admin-lobby-controls'); show('player-lobby-wait'); }
 }
 
 function renderGame(phase) {
   const btn = document.getElementById('buzz-btn');
   const status = document.getElementById('buzz-status');
+  const buzzOrder = gameState.buzzOrder || [];
+  const curIdx = gameState.currentAnswererIndex ?? 0;
+
+  // Section visibility
+  hide('buzz-section'); hide('answer-timer-section'); hide('award-section');
+  hide('btn-start-round'); hide('btn-end-round'); hide('btn-already-answered'); hide('btn-next-round');
+  hide('player-game-wait');
 
   if (phase === 'playing') {
     hasBuzzed = false;
     stopTimer();
-    btn.className = 'btn-buzz';
-    btn.disabled = true;
-    btn.textContent = 'BUZZ!';
-    status.textContent = 'Waiting for round to start...';
-    status.className = 'buzz-status';
-    hide('buzz-section');
-    hide('answer-timer-section');
     hide('buzz-order-section');
-    hide('btn-end-round');
-    hide('btn-already-answered');
-    hide('btn-next-round');
-    if (isAdmin) {
-      show('btn-start-round');
-      show('admin-game-controls');
-      hide('player-game-wait');
-    } else {
-      hide('admin-game-controls');
-      show('player-game-wait');
-    }
+    if (isAdmin) { show('admin-game-controls'); show('btn-start-round'); }
+    else { hide('admin-game-controls'); show('player-game-wait'); document.getElementById('player-game-wait').textContent = 'Waiting for host to open the buzzer...'; }
+
   } else if (phase === 'round_active') {
     stopTimer();
     show('buzz-section');
-    hide('answer-timer-section');
     if (!hasBuzzed) {
-      btn.className = 'btn-buzz active';
-      btn.disabled = false;
-      btn.textContent = 'BUZZ!';
-      status.textContent = 'GO! Buzz in now!';
-      status.className = 'buzz-status go';
+      btn.className = 'btn-buzz active'; btn.disabled = false;
+      status.textContent = 'GO! Buzz in now!'; status.className = 'buzz-status go';
     }
-    renderBuzzOrder(gameState.buzzOrder || []);
-    if (isAdmin) {
-      show('admin-game-controls');
-      hide('btn-start-round');
-      show('btn-end-round');
-      hide('btn-already-answered');
-      hide('btn-next-round');
-      hide('player-game-wait');
-    } else {
-      hide('admin-game-controls');
-      hide('player-game-wait');
-    }
+    renderBuzzOrder(buzzOrder, -1);
+    if (isAdmin) { show('admin-game-controls'); show('btn-end-round'); }
+
   } else if (phase === 'round_timer') {
-    hide('buzz-section');
     show('answer-timer-section');
-    btn.className = 'btn-buzz';
-    btn.disabled = true;
-    const firstBuzzer = (gameState.buzzOrder || [])[0];
-    document.getElementById('timer-answering').textContent =
-      firstBuzzer ? `${firstBuzzer.name} is answering...` : 'Answering...';
-    renderBuzzOrder(gameState.buzzOrder || []);
+    const current = buzzOrder[curIdx];
+    document.getElementById('timer-answering').textContent = current ? `${current.name} is answering...` : '';
+    renderBuzzOrder(buzzOrder, curIdx);
     startCountdown(gameState.timerEnd);
+    if (isAdmin) { show('admin-game-controls'); show('btn-already-answered'); }
+    else { show('player-game-wait'); document.getElementById('player-game-wait').textContent = ''; }
+
+  } else if (phase === 'round_awarding') {
+    stopTimer();
+    const current = buzzOrder[curIdx];
+    renderBuzzOrder(buzzOrder, curIdx);
     if (isAdmin) {
+      show('award-section');
+      document.getElementById('award-player-name').textContent = current ? current.name : 'Player';
+      document.getElementById('points-input').value = '0';
       show('admin-game-controls');
-      hide('btn-start-round');
-      hide('btn-end-round');
-      show('btn-already-answered');
-      hide('btn-next-round');
-      hide('player-game-wait');
     } else {
-      hide('admin-game-controls');
-      hide('player-game-wait');
+      show('player-game-wait');
+      document.getElementById('player-game-wait').textContent = current
+        ? `Host is awarding points to ${current.name}...` : 'Waiting...';
     }
+
   } else if (phase === 'round_results') {
     stopTimer();
     show('buzz-section');
-    hide('answer-timer-section');
-    btn.className = 'btn-buzz';
-    btn.disabled = true;
-    btn.textContent = 'BUZZ!';
-    status.textContent = 'Round over!';
-    status.className = 'buzz-status';
-    renderBuzzOrder(gameState.buzzOrder || []);
+    btn.className = 'btn-buzz'; btn.disabled = true;
+    status.textContent = 'Round over!'; status.className = 'buzz-status';
+    renderBuzzOrder(buzzOrder, -1);
     if (isAdmin) {
-      show('admin-game-controls');
-      hide('btn-start-round');
-      hide('btn-end-round');
-      hide('btn-already-answered');
-      show('btn-next-round');
+      show('admin-game-controls'); show('btn-next-round');
       document.getElementById('btn-next-round').textContent =
         gameState.round >= gameState.totalRounds ? 'See Final Results' : 'Next Round →';
-      hide('player-game-wait');
     } else {
-      hide('admin-game-controls');
-      show('player-game-wait');
-      document.getElementById('player-game-wait').textContent = 'Waiting for next round...';
+      show('player-game-wait'); document.getElementById('player-game-wait').textContent = 'Waiting for next round...';
     }
   }
 
-  // Scoreboard
+  // Scoreboard always visible
   const sorted = [...players].sort((a, b) => b.score - a.score);
   document.getElementById('game-scoreboard').innerHTML = sorted.map((p, i) => `
     <div class="score-row">
-      <div class="score-position">#${i + 1}</div>
+      <div class="score-position">#${i+1}</div>
       <div class="score-name">${esc(p.name)}${p.name === myName ? '<span class="you-tag">You</span>' : ''}</div>
       <div class="score-pts">${p.score} pts</div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
-function renderBuzzOrder(order) {
+function renderBuzzOrder(order, currentIdx) {
   if (!order || order.length === 0) { hide('buzz-order-section'); return; }
   show('buzz-order-section');
   const medals = ['🥇', '🥈', '🥉'];
-  document.getElementById('buzz-order-list').innerHTML = order.map((b, i) => `
-    <div class="podium-row">
-      <div class="podium-place">${medals[i] || `#${i + 1}`}</div>
-      <div class="podium-name">${esc(b.name)}${b.name === myName ? '<span class="you-tag">You</span>' : ''}</div>
-    </div>
-  `).join('');
+  document.getElementById('buzz-order-list').innerHTML = order.map((b, i) => {
+    let rowClass = 'buzz-row';
+    let ptsHtml = '';
+
+    if (currentIdx === -1) {
+      // round_active or round_results
+      if (b.pointsAwarded !== null && b.pointsAwarded !== undefined) {
+        ptsHtml = `<span class="buzz-pts awarded">+${b.pointsAwarded} pts</span>`;
+      }
+    } else if (i < currentIdx) {
+      rowClass += ' done';
+      ptsHtml = b.pointsAwarded !== null && b.pointsAwarded !== undefined
+        ? `<span class="buzz-pts awarded">+${b.pointsAwarded} pts</span>`
+        : `<span class="buzz-pts waiting">done</span>`;
+    } else if (i === currentIdx) {
+      rowClass += ' current';
+      ptsHtml = `<span class="buzz-pts answering">answering<span class="answering-tag">NOW</span></span>`;
+    } else {
+      ptsHtml = `<span class="buzz-pts waiting">waiting</span>`;
+    }
+
+    return `<div class="${rowClass}">
+      <div class="buzz-place">${medals[i] || `#${i+1}`}</div>
+      <div class="buzz-name">${esc(b.name)}${b.name === myName ? '<span class="you-tag">You</span>' : ''}</div>
+      ${ptsHtml}
+    </div>`;
+  }).join('');
 }
 
 function renderGameOver() {
@@ -806,28 +689,26 @@ function renderGameOver() {
   const medals = ['🥇', '🥈', '🥉'];
   document.getElementById('final-scoreboard').innerHTML = sorted.map((p, i) => `
     <div class="score-row ${i === 0 ? 'winner' : ''}">
-      <div class="score-position">${medals[i] || `#${i + 1}`}</div>
+      <div class="score-position">${medals[i] || `#${i+1}`}</div>
       <div class="score-name">${esc(p.name)}${p.name === myName ? '<span class="you-tag">You</span>' : ''}</div>
       <div class="score-pts">${p.score} pts</div>
-    </div>
-  `).join('');
-
+    </div>`).join('');
   if (isAdmin) show('admin-gameover-controls');
   else hide('admin-gameover-controls');
 }
 
-// ---- Actions ----
 function startGame() {
   const rounds = parseInt(document.getElementById('rounds-input').value) || 5;
   socket.emit('start-game', { totalRounds: rounds });
 }
 function startRound() { socket.emit('start-round'); }
-function doBuzz() {
-  if (hasBuzzed) return;
-  socket.emit('buzz');
-}
+function doBuzz() { if (!hasBuzzed) socket.emit('buzz'); }
 function endRound() { socket.emit('end-round'); }
 function alreadyAnswered() { socket.emit('already-answered'); }
+function awardPoints() {
+  const pts = parseInt(document.getElementById('points-input').value) || 0;
+  socket.emit('award-points', { points: pts });
+}
 function nextRound() { socket.emit('next-round'); }
 function restartGame() { socket.emit('restart-game'); }
 
@@ -837,12 +718,8 @@ function startCountdown(timerEnd) {
   function tick() {
     const remaining = Math.max(0, timerEnd - Date.now());
     const secs = Math.ceil(remaining / 1000);
-    const frac = remaining / total;
-    const offset = TIMER_CIRCUMFERENCE * (1 - frac);
-
     document.getElementById('timer-number').textContent = secs;
-    document.getElementById('timer-arc').style.strokeDashoffset = offset;
-
+    document.getElementById('timer-arc').style.strokeDashoffset = TIMER_CIRCUMFERENCE * (1 - remaining / total);
     const circle = document.getElementById('timer-circle');
     if (secs <= 10) circle.classList.add('urgent');
     else circle.classList.remove('urgent');
