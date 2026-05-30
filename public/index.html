@@ -341,6 +341,49 @@
       color: var(--text-muted);
       margin-bottom: 10px;
     }
+
+    .answer-timer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 0;
+    }
+    .timer-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .timer-answering {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent-light);
+    }
+    .timer-circle {
+      position: relative;
+      width: 120px;
+      height: 120px;
+    }
+    .timer-circle svg {
+      transform: rotate(-90deg);
+    }
+    .timer-circle-bg { fill: none; stroke: var(--surface2); stroke-width: 8; }
+    .timer-circle-fg { fill: none; stroke: var(--buzz-active); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear, stroke 0.3s; }
+    .timer-number {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--buzz-active);
+      transition: color 0.3s;
+    }
+    .timer-circle.urgent .timer-circle-fg { stroke: var(--red); }
+    .timer-circle.urgent .timer-number { color: var(--red); }
   </style>
 </head>
 <body>
@@ -404,11 +447,25 @@
     </div>
   </div>
 
-  <!-- PLAYING / ROUND ACTIVE / ROUND RESULTS -->
+  <!-- PLAYING / ROUND ACTIVE / ROUND TIMER / ROUND RESULTS -->
   <div id="game-section" class="hidden">
     <div id="buzz-section" class="buzz-center">
       <div id="buzz-status" class="buzz-status">Waiting for round to start...</div>
       <button id="buzz-btn" class="btn-buzz" disabled onclick="doBuzz()">BUZZ!</button>
+    </div>
+
+    <!-- Answer timer -->
+    <div id="answer-timer-section" class="answer-timer hidden">
+      <div class="timer-label">Time to answer</div>
+      <div id="timer-answering" class="timer-answering"></div>
+      <div class="timer-circle" id="timer-circle">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle class="timer-circle-bg" cx="60" cy="60" r="52"/>
+          <circle class="timer-circle-fg" id="timer-arc" cx="60" cy="60" r="52"
+            stroke-dasharray="327" stroke-dashoffset="0"/>
+        </svg>
+        <div class="timer-number" id="timer-number">30</div>
+      </div>
     </div>
 
     <hr class="divider" />
@@ -428,7 +485,8 @@
     <!-- Admin controls -->
     <div id="admin-game-controls" class="controls hidden">
       <button id="btn-start-round" class="btn-green" onclick="startRound()">Open Buzzer</button>
-      <button id="btn-end-round" class="btn-red hidden" onclick="endRound()">Close & Score Round</button>
+      <button id="btn-end-round" class="btn-red hidden" onclick="endRound()">Close Buzzer</button>
+      <button id="btn-already-answered" class="btn-green hidden" onclick="alreadyAnswered()">Already Answered ✓</button>
       <button id="btn-next-round" class="btn-ghost hidden" onclick="nextRound()">Next Round →</button>
     </div>
 
@@ -461,6 +519,9 @@ let myName = null;
 let gameState = null;
 let players = [];
 let hasBuzzed = false;
+let timerInterval = null;
+
+const TIMER_CIRCUMFERENCE = 327; // 2 * pi * 52
 
 // ---- Helpers ----
 function show(id) { document.getElementById(id).classList.remove('hidden'); }
@@ -585,11 +646,13 @@ function renderRoom() {
     show('lobby-section');
     hide('game-section');
     hide('gameover-section');
+    stopTimer();
     renderLobby();
   } else if (phase === 'game_over') {
     hide('lobby-section');
     hide('game-section');
     show('gameover-section');
+    stopTimer();
     renderGameOver();
   } else {
     hide('lobby-section');
@@ -625,13 +688,17 @@ function renderGame(phase) {
 
   if (phase === 'playing') {
     hasBuzzed = false;
+    stopTimer();
     btn.className = 'btn-buzz';
     btn.disabled = true;
     btn.textContent = 'BUZZ!';
     status.textContent = 'Waiting for round to start...';
     status.className = 'buzz-status';
+    hide('buzz-section');
+    hide('answer-timer-section');
     hide('buzz-order-section');
     hide('btn-end-round');
+    hide('btn-already-answered');
     hide('btn-next-round');
     if (isAdmin) {
       show('btn-start-round');
@@ -642,6 +709,9 @@ function renderGame(phase) {
       show('player-game-wait');
     }
   } else if (phase === 'round_active') {
+    stopTimer();
+    show('buzz-section');
+    hide('answer-timer-section');
     if (!hasBuzzed) {
       btn.className = 'btn-buzz active';
       btn.disabled = false;
@@ -654,6 +724,28 @@ function renderGame(phase) {
       show('admin-game-controls');
       hide('btn-start-round');
       show('btn-end-round');
+      hide('btn-already-answered');
+      hide('btn-next-round');
+      hide('player-game-wait');
+    } else {
+      hide('admin-game-controls');
+      hide('player-game-wait');
+    }
+  } else if (phase === 'round_timer') {
+    hide('buzz-section');
+    show('answer-timer-section');
+    btn.className = 'btn-buzz';
+    btn.disabled = true;
+    const firstBuzzer = (gameState.buzzOrder || [])[0];
+    document.getElementById('timer-answering').textContent =
+      firstBuzzer ? `${firstBuzzer.name} is answering...` : 'Answering...';
+    renderBuzzOrder(gameState.buzzOrder || []);
+    startCountdown(gameState.timerEnd);
+    if (isAdmin) {
+      show('admin-game-controls');
+      hide('btn-start-round');
+      hide('btn-end-round');
+      show('btn-already-answered');
       hide('btn-next-round');
       hide('player-game-wait');
     } else {
@@ -661,6 +753,9 @@ function renderGame(phase) {
       hide('player-game-wait');
     }
   } else if (phase === 'round_results') {
+    stopTimer();
+    show('buzz-section');
+    hide('answer-timer-section');
     btn.className = 'btn-buzz';
     btn.disabled = true;
     btn.textContent = 'BUZZ!';
@@ -671,6 +766,7 @@ function renderGame(phase) {
       show('admin-game-controls');
       hide('btn-start-round');
       hide('btn-end-round');
+      hide('btn-already-answered');
       show('btn-next-round');
       document.getElementById('btn-next-round').textContent =
         gameState.round >= gameState.totalRounds ? 'See Final Results' : 'Next Round →';
@@ -731,8 +827,33 @@ function doBuzz() {
   socket.emit('buzz');
 }
 function endRound() { socket.emit('end-round'); }
+function alreadyAnswered() { socket.emit('already-answered'); }
 function nextRound() { socket.emit('next-round'); }
 function restartGame() { socket.emit('restart-game'); }
+
+function startCountdown(timerEnd) {
+  stopTimer();
+  const total = 30000;
+  function tick() {
+    const remaining = Math.max(0, timerEnd - Date.now());
+    const secs = Math.ceil(remaining / 1000);
+    const frac = remaining / total;
+    const offset = TIMER_CIRCUMFERENCE * (1 - frac);
+
+    document.getElementById('timer-number').textContent = secs;
+    document.getElementById('timer-arc').style.strokeDashoffset = offset;
+
+    const circle = document.getElementById('timer-circle');
+    if (secs <= 10) circle.classList.add('urgent');
+    else circle.classList.remove('urgent');
+  }
+  tick();
+  timerInterval = setInterval(tick, 100);
+}
+
+function stopTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
 
 function esc(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');

@@ -10,22 +10,39 @@ const io = new Server(server);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// rooms[roomCode] = { adminId, players: Map<socketId, {name, score}>, state }
-// state: { phase: 'lobby'|'playing'|'round_active'|'round_results', round: n, totalRounds: n, buzzOrder: [] }
+const ANSWER_TIMER_MS = 30000;
+
 const rooms = new Map();
+
+function finishRound(code) {
+  const room = rooms.get(code);
+  if (!room) return;
+  if (room.state.timerId) { clearTimeout(room.state.timerId); room.state.timerId = null; }
+
+  const pts = [3, 2, 1];
+  room.state.buzzOrder.forEach((b, i) => {
+    const p = room.players.get(b.id);
+    if (p) p.score += pts[i] ?? 0;
+  });
+
+  room.state.phase = 'round_results';
+  room.state.timerEnd = null;
+  io.to(code).emit('room-update', getRoomData(room));
+}
 
 function generateRoomCode() {
   return crypto.randomBytes(2).toString('hex').toUpperCase();
 }
 
 function getRoomData(room) {
+  const { timerId, ...stateForClient } = room.state;
   return {
     players: Array.from(room.players.entries()).map(([id, p]) => ({
       id,
       name: p.name,
       score: p.score,
     })),
-    state: room.state,
+    state: stateForClient,
   };
 }
 
@@ -109,16 +126,20 @@ io.on('connection', (socket) => {
     const code = socket.data.roomCode;
     const room = rooms.get(code);
     if (!room || room.adminId !== socket.id) return;
+    if (room.state.phase !== 'round_active') return;
 
-    // Award points: 1st=3pts, 2nd=2pts, 3rd=1pt
-    const pts = [3, 2, 1];
-    room.state.buzzOrder.forEach((b, i) => {
-      const p = room.players.get(b.id);
-      if (p) p.score += pts[i] ?? 0;
-    });
-
-    room.state.phase = 'round_results';
+    room.state.phase = 'round_timer';
+    room.state.timerEnd = Date.now() + ANSWER_TIMER_MS;
+    room.state.timerId = setTimeout(() => finishRound(code), ANSWER_TIMER_MS);
     io.to(code).emit('room-update', getRoomData(room));
+  });
+
+  socket.on('already-answered', () => {
+    const code = socket.data.roomCode;
+    const room = rooms.get(code);
+    if (!room || room.adminId !== socket.id) return;
+    if (room.state.phase !== 'round_timer') return;
+    finishRound(code);
   });
 
   socket.on('next-round', () => {
@@ -155,6 +176,7 @@ io.on('connection', (socket) => {
     room.players.delete(socket.id);
 
     if (room.players.size === 0) {
+      if (room.state.timerId) clearTimeout(room.state.timerId);
       rooms.delete(code);
       return;
     }
