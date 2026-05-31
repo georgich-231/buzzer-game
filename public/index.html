@@ -82,7 +82,7 @@
     }
 
     /* ── BRAND ── */
-    .brand-lockup { text-align: center; margin-bottom: clamp(20px, 4vh, 36px); }
+    .brand-lockup { text-align: center; margin-bottom: clamp(24px, 5vh, 44px); }
 
     .logo {
       display: inline-block; font-family: 'Bebas Neue', sans-serif;
@@ -96,16 +96,55 @@
 
     .tagline { margin-top: 14px; color: var(--text-muted); font-size: clamp(0.88rem, 2.4vw, 1rem); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
 
-    .preset-landing-bar { text-align: center; margin-bottom: 22px; }
+    .brand-desc { margin-top: 10px; color: var(--text-dim); font-size: 0.88rem; font-weight: 500; letter-spacing: 0.03em; }
 
-    .btn-presets {
-      display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px;
-      border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,0.06);
-      color: var(--text-muted); font-family: 'Space Grotesk', sans-serif;
-      font-size: 0.88rem; font-weight: 700; letter-spacing: 0.06em; cursor: pointer;
-      transition: border-color 0.2s, color 0.2s, box-shadow 0.2s, background 0.2s;
+    .brand-divider {
+      display: flex; align-items: center; justify-content: center; gap: 14px;
+      margin: clamp(14px, 3vh, 24px) auto 0; width: min(320px, 80%);
     }
-    .btn-presets:hover { border-color: var(--teal); color: var(--teal); background: rgba(0,225,210,0.07); box-shadow: 0 0 22px var(--teal-glow); }
+    .brand-divider::before, .brand-divider::after {
+      content: ""; flex: 1; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12));
+    }
+    .brand-divider::after { background: linear-gradient(90deg, rgba(255,255,255,0.12), transparent); }
+    .brand-divider-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 10px var(--gold-glow); }
+
+    /* ── CARDS ── */
+    .card-eyebrow {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-bottom: 10px; padding: 4px 10px; border-radius: 999px;
+      font-size: 0.68rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .card-eyebrow-host { background: rgba(245,197,66,0.12); color: var(--gold); border: 1px solid rgba(245,197,66,0.22); }
+    .card-eyebrow-join { background: rgba(0,225,210,0.1); color: var(--teal); border: 1px solid rgba(0,225,210,0.22); }
+    .card-desc { margin-bottom: 18px; color: var(--text-dim); font-size: 0.84rem; font-weight: 500; line-height: 1.5; }
+
+    /* card accent top border */
+    .card-host { border-top-color: rgba(245,197,66,0.35); }
+    .card-join { border-top-color: rgba(0,225,210,0.3); }
+
+    /* ── PRESETS CARD ── */
+    .preset-card {
+      position: relative; margin-top: 16px; display: flex; align-items: center;
+      justify-content: space-between; gap: 16px; padding: 20px 24px;
+      border: 1px solid rgba(0,225,210,0.2); border-radius: var(--radius);
+      background: rgba(0,225,210,0.04); cursor: pointer; overflow: hidden;
+      transition: border-color 0.28s, background 0.28s, box-shadow 0.28s, transform 0.22s cubic-bezier(0.16,1,0.3,1);
+    }
+    .preset-card:hover { border-color: var(--border-teal); background: rgba(0,225,210,0.08); box-shadow: 0 0 40px rgba(0,225,210,0.12), inset 0 1px rgba(255,255,255,0.06); transform: translateY(-2px); }
+    .preset-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.06) 50%, transparent 70%); transform: translateX(-130%); transition: transform 0.7s ease; pointer-events: none; }
+    .preset-card:hover::before { transform: translateX(130%); }
+    .preset-card-left { display: flex; align-items: center; gap: 16px; min-width: 0; }
+    .preset-card-icon {
+      width: 48px; height: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      border-radius: 12px; background: rgba(0,225,210,0.1); border: 1px solid rgba(0,225,210,0.22);
+      font-size: 1.4rem;
+    }
+    .preset-card-copy { min-width: 0; }
+    .preset-card-title { font-size: 1rem; font-weight: 800; color: var(--teal); letter-spacing: 0.02em; }
+    .preset-card-desc { margin-top: 4px; color: var(--text-dim); font-size: 0.82rem; font-weight: 500; line-height: 1.4; }
+    .preset-card-cta { display: flex; align-items: center; gap: 6px; color: var(--teal); font-size: 0.84rem; font-weight: 800; letter-spacing: 0.06em; white-space: nowrap; flex-shrink: 0; transition: gap 0.22s, opacity 0.22s; }
+    .preset-card:hover .preset-card-cta { gap: 10px; }
 
     /* ── CARDS ── */
     .entry-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: stretch; }
@@ -448,27 +487,40 @@
 <div id="landing-screen" class="landing-screen">
   <div class="brand-lockup">
     <div class="logo">BUZZ!</div>
-    <p class="tagline">Quiz night control room</p>
-  </div>
-
-  <div class="preset-landing-bar">
-    <button class="btn-presets" onclick="openPresetsModal()">📋 Manage Presets</button>
+    <p class="tagline">Quiz Night Control Room</p>
+    <p class="brand-desc">Real-time buzzers · live scoreboards · question presets</p>
+    <div class="brand-divider"><div class="brand-divider-dot"></div></div>
   </div>
 
   <div class="entry-grid">
-    <div class="card">
+    <div class="card card-host">
+      <div class="card-eyebrow card-eyebrow-host">⚡ Host</div>
       <div class="card-title">Create a Room</div>
+      <div class="card-desc">Start a game and share the 4-letter code with your players.</div>
       <input id="create-name" type="text" placeholder="Your name" maxlength="24" />
       <div id="create-error" class="error hidden"></div>
       <button class="btn-primary" onclick="createRoom()">Create Room</button>
     </div>
-    <div class="card">
+    <div class="card card-join">
+      <div class="card-eyebrow card-eyebrow-join">→ Player</div>
       <div class="card-title">Join a Room</div>
+      <div class="card-desc">Enter your name and the room code from the host to join.</div>
       <input id="join-name" type="text" placeholder="Your name" maxlength="24" />
       <input id="join-code" type="text" placeholder="Room code" class="code-input" maxlength="4" />
       <div id="join-error" class="error hidden"></div>
       <button class="btn-ghost" onclick="joinRoom()">Join Room</button>
     </div>
+  </div>
+
+  <div class="preset-card" onclick="openPresetsModal()">
+    <div class="preset-card-left">
+      <div class="preset-card-icon">📚</div>
+      <div class="preset-card-copy">
+        <div class="preset-card-title">Question Presets</div>
+        <div class="preset-card-desc">Build your quiz bank — questions, answers, images &amp; videos</div>
+      </div>
+    </div>
+    <div class="preset-card-cta">Manage <span>→</span></div>
   </div>
 </div>
 
