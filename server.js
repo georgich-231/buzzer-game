@@ -18,7 +18,12 @@ function generateRoomCode() {
 }
 
 function getRoomData(room) {
-  const { timerId, ...stateForClient } = room.state;
+  const { timerId, timerEnd, ...stateForClient } = room.state;
+  if (timerEnd !== null && timerEnd !== undefined) {
+    stateForClient.timerMs = Math.max(0, timerEnd - Date.now());
+  } else {
+    stateForClient.timerMs = null;
+  }
   return {
     players: Array.from(room.players.entries()).map(([id, p]) => ({
       id,

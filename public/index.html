@@ -1524,7 +1524,7 @@ function renderGame(phase) {
     const current = buzzOrder[curIdx];
     document.getElementById('timer-answering').textContent = current ? `${current.name} is answering...` : '';
     renderBuzzOrder(buzzOrder, curIdx);
-    startCountdown(gameState.timerEnd);
+    startCountdown(Date.now() + (gameState.timerMs ?? 30000));
     if (isAdmin) { show('admin-game-controls'); show('btn-already-answered'); }
     else { show('player-game-wait'); document.getElementById('player-game-wait').textContent = ''; }
 
