@@ -380,7 +380,7 @@
     }
 
     .btn-buzz::after {
-      border-radius: 50%;
+      display: none;
     }
 
     .btn-buzz:hover:not(:disabled) {
@@ -817,6 +817,7 @@
       width: 152px;
       height: 152px;
       transform: rotate(-90deg);
+      overflow: visible;
     }
 
     .timer-circle-bg {
@@ -1430,7 +1431,7 @@ socket.on('room-update', (data) => {
 
 socket.on('buzz-update', (buzzOrder) => {
   gameState.buzzOrder = buzzOrder;
-  renderBuzzOrder(buzzOrder, gameState.currentAnswererIndex);
+  renderBuzzOrder(buzzOrder, -1);
   const myEntry = buzzOrder.find(b => b.name === myName);
   if (myEntry) {
     hasBuzzed = true;
