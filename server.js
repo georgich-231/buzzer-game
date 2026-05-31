@@ -132,7 +132,8 @@ function generateRoomCode() {
 function blankPresetState() {
   return { presetId: null, presetName: null, presetQuestionCount: 0,
     currentQuestionIndex: null, currentQuestionText: null,
-    currentQuestionMediaType: null, currentQuestionMediaFile: null };
+    currentQuestionMediaType: null, currentQuestionMediaFile: null,
+    revealedAnswer: null };
 }
 
 function getRoomData(room) {
@@ -227,6 +228,7 @@ io.on('connection', (socket) => {
     if (room.state.phase !== 'playing') return;
     room.state.phase = 'round_active';
     room.state.buzzOrder = [];
+    room.state.revealedAnswer = null;
     io.to(code).emit('room-update', getRoomData(room));
   });
 
@@ -307,6 +309,7 @@ io.on('connection', (socket) => {
     room.state.currentQuestionText = null;
     room.state.currentQuestionMediaType = null;
     room.state.currentQuestionMediaFile = null;
+    room.state.revealedAnswer = null;
     io.to(code).emit('room-update', getRoomData(room));
   });
 
@@ -373,6 +376,28 @@ io.on('connection', (socket) => {
     room.state.currentQuestionText = null;
     room.state.currentQuestionMediaType = null;
     room.state.currentQuestionMediaFile = null;
+    io.to(code).emit('room-update', getRoomData(room));
+  });
+
+  socket.on('reveal-answer', () => {
+    const code = socket.data.roomCode;
+    const room = rooms.get(code);
+    if (!room || room.adminId !== socket.id) return;
+    if (!room.state.presetId) return;
+    const preset = getPreset(room.state.presetId);
+    if (!preset) return;
+    const idx = room.state.currentQuestionIndex;
+    const q = idx != null ? preset.questions[idx] : null;
+    if (!q) return;
+    room.state.revealedAnswer = q.answer || '';
+    io.to(code).emit('room-update', getRoomData(room));
+  });
+
+  socket.on('hide-answer', () => {
+    const code = socket.data.roomCode;
+    const room = rooms.get(code);
+    if (!room || room.adminId !== socket.id) return;
+    room.state.revealedAnswer = null;
     io.to(code).emit('room-update', getRoomData(room));
   });
 

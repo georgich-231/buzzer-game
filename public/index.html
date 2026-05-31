@@ -337,6 +337,17 @@
     .toast { position: fixed; left: 50%; bottom: 28px; z-index: 300; max-width: calc(100vw - 32px); padding: 12px 24px; border: 1px solid rgba(255,255,255,0.14); border-radius: 999px; background: var(--surface-strong); color: var(--text); font-size: 0.9rem; font-weight: 700; letter-spacing: 0.04em; opacity: 0; pointer-events: none; transform: translate(-50%, 20px) scale(0.94); transition: opacity 0.26s, transform 0.26s cubic-bezier(0.16,1,0.3,1); white-space: nowrap; box-shadow: 0 24px 64px rgba(0,0,0,0.55), inset 0 1px rgba(255,255,255,0.1); }
     .toast.show { opacity: 1; transform: translate(-50%, 0) scale(1); }
 
+    /* ── ANSWER REVEAL (all players) ── */
+    .answer-reveal {
+      margin-bottom: 16px; padding: 20px 24px;
+      border: 1px solid rgba(18,228,126,0.55); border-radius: var(--radius);
+      background: rgba(18,228,126,0.07);
+      box-shadow: 0 0 36px rgba(18,228,126,0.12), inset 0 1px rgba(255,255,255,0.07);
+      text-align: center; animation: award-pop 0.4s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .answer-reveal-label { display: block; color: var(--green); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 10px; }
+    .answer-reveal-text { color: var(--text); font-size: clamp(1.2rem, 4vw, 1.8rem); font-weight: 800; line-height: 1.3; }
+
     /* ── QUESTION DISPLAY (all players) ── */
     .question-display {
       margin-bottom: 20px; padding: 20px 22px;
@@ -573,6 +584,12 @@
       <div id="question-display-media" class="question-display-media"></div>
     </div>
 
+    <!-- Answer reveal (all players) -->
+    <div id="answer-reveal" class="answer-reveal hidden">
+      <span class="answer-reveal-label">✓ Answer</span>
+      <div id="answer-reveal-text" class="answer-reveal-text"></div>
+    </div>
+
     <!-- Preset panel (admin only) -->
     <div id="preset-panel" class="preset-panel hidden">
       <div class="preset-panel-top">
@@ -592,7 +609,10 @@
         <div id="preset-q-text" class="preset-q-text"></div>
         <div id="preset-q-answer" class="preset-q-answer"></div>
       </div>
-      <button id="btn-toggle-question" class="btn-teal" onclick="toggleShowQuestion()">Show Question</button>
+      <div style="display:flex;gap:8px">
+        <button id="btn-toggle-question" class="btn-teal" onclick="toggleShowQuestion()" style="flex:1">Show Question</button>
+        <button id="btn-reveal-answer" class="btn-green" onclick="toggleRevealAnswer()" style="flex:1">Reveal Answer</button>
+      </div>
     </div>
 
     <!-- Load preset button (admin, no preset) -->
@@ -822,6 +842,7 @@ function renderRoom() {
   else { hide('lobby-section'); show('game-section'); hide('gameover-section'); renderGame(phase); }
 
   renderQuestionDisplay();
+  renderAnswerReveal();
   if (isAdmin) renderPresetPanel();
 }
 
@@ -955,6 +976,18 @@ function renderQuestionDisplay() {
   } else { media.innerHTML = ''; }
 }
 
+// ── Answer reveal ─────────────────────────────────────────────────────────────
+function renderAnswerReveal() {
+  if (!gameState || !gameState.revealedAnswer) { hide('answer-reveal'); return; }
+  show('answer-reveal');
+  document.getElementById('answer-reveal-text').textContent = gameState.revealedAnswer;
+}
+
+function toggleRevealAnswer() {
+  if (gameState.revealedAnswer) socket.emit('hide-answer');
+  else socket.emit('reveal-answer');
+}
+
 // ── Preset panel (admin, in-room) ─────────────────────────────────────────────
 function renderPresetPanel() {
   if (!isAdmin || !gameState) return;
@@ -990,6 +1023,12 @@ function renderPresetPanel() {
   const btn = document.getElementById('btn-toggle-question');
   btn.textContent = isShowing ? 'Hide Question' : 'Show Question';
   btn.className = isShowing ? 'btn-red' : 'btn-teal';
+
+  const revealBtn = document.getElementById('btn-reveal-answer');
+  const canReveal = !!gameState.currentQuestionText;
+  revealBtn.disabled = !canReveal;
+  revealBtn.textContent = gameState.revealedAnswer ? 'Hide Answer' : 'Reveal Answer';
+  revealBtn.className = gameState.revealedAnswer ? 'btn-ghost' : 'btn-green';
 }
 
 function prevHostQuestion() { if (!activePreset) return; hostQIdx = Math.max(0, hostQIdx - 1); renderPresetPanel(); }
