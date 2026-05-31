@@ -18,9 +18,9 @@ function generateRoomCode() {
 }
 
 function getRoomData(room) {
-  const { timerId, timerEnd, ...stateForClient } = room.state;
-  if (timerEnd !== null && timerEnd !== undefined) {
-    stateForClient.timerMs = Math.max(0, timerEnd - Date.now());
+  const { timerId, ...stateForClient } = room.state;
+  if (stateForClient.timerEnd !== null && stateForClient.timerEnd !== undefined) {
+    stateForClient.timerMs = Math.max(0, stateForClient.timerEnd - Date.now());
   } else {
     stateForClient.timerMs = null;
   }
