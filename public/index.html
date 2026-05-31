@@ -347,6 +347,16 @@
     }
     .answer-reveal-label { display: block; color: var(--green); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 10px; }
     .answer-reveal-text { color: var(--text); font-size: clamp(1.2rem, 4vw, 1.8rem); font-weight: 800; line-height: 1.3; }
+    .answer-reveal-media { margin-top: 14px; display: flex; justify-content: center; }
+    .answer-reveal-media img { max-width: 100%; max-height: 360px; border-radius: 10px; object-fit: contain; }
+    .answer-reveal-media video { width: 100%; max-height: 360px; border-radius: 10px; background: #000; outline: none; }
+
+    /* Video in question display */
+    .question-display-media video { width: 100%; max-height: 300px; border-radius: 8px; background: #000; outline: none; }
+
+    /* Answer media label in editor */
+    .answer-media-section { margin-top: 4px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.08); }
+    .answer-media-label-text { color: var(--green); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
 
     /* ── QUESTION DISPLAY (all players) ── */
     .question-display {
@@ -588,6 +598,7 @@
     <div id="answer-reveal" class="answer-reveal hidden">
       <span class="answer-reveal-label">✓ Answer</span>
       <div id="answer-reveal-text" class="answer-reveal-text"></div>
+      <div id="answer-reveal-media" class="answer-reveal-media"></div>
     </div>
 
     <!-- Preset panel (admin only) -->
@@ -971,20 +982,34 @@ function renderQuestionDisplay() {
   if (gameState.currentQuestionMediaFile) {
     const url = `/uploads/${gameState.currentQuestionMediaFile}`;
     media.innerHTML = gameState.currentQuestionMediaType === 'video'
-      ? `<video src="${url}" controls autoplay muted></video>`
-      : `<img src="${url}" alt="Question image" />`;
+      ? `<video src="${url}" controls preload="metadata" style="width:100%;max-height:300px;border-radius:8px;background:#000"></video>`
+      : `<img src="${url}" alt="Question image" style="max-width:100%;max-height:300px;border-radius:8px;object-fit:contain" />`;
   } else { media.innerHTML = ''; }
 }
 
 // ── Answer reveal ─────────────────────────────────────────────────────────────
 function renderAnswerReveal() {
-  if (!gameState || !gameState.revealedAnswer) { hide('answer-reveal'); return; }
+  if (!gameState || gameState.revealedAnswer === null) { hide('answer-reveal'); return; }
   show('answer-reveal');
-  document.getElementById('answer-reveal-text').textContent = gameState.revealedAnswer;
+  const textEl = document.getElementById('answer-reveal-text');
+  textEl.textContent = gameState.revealedAnswer || '';
+  textEl.style.display = gameState.revealedAnswer ? '' : 'none';
+
+  const mediaEl = document.getElementById('answer-reveal-media');
+  if (gameState.revealedAnswerMediaFile) {
+    const url = `/uploads/${gameState.revealedAnswerMediaFile}`;
+    if (gameState.revealedAnswerMediaType === 'video') {
+      mediaEl.innerHTML = `<video src="${url}" controls preload="metadata" style="width:100%;max-height:360px;border-radius:10px;background:#000"></video>`;
+    } else {
+      mediaEl.innerHTML = `<img src="${url}" alt="Answer" style="max-width:100%;max-height:360px;border-radius:10px;object-fit:contain" />`;
+    }
+  } else {
+    mediaEl.innerHTML = '';
+  }
 }
 
 function toggleRevealAnswer() {
-  if (gameState.revealedAnswer) socket.emit('hide-answer');
+  if (gameState.revealedAnswer !== null) socket.emit('hide-answer');
   else socket.emit('reveal-answer');
 }
 
@@ -1027,8 +1052,8 @@ function renderPresetPanel() {
   const revealBtn = document.getElementById('btn-reveal-answer');
   const canReveal = !!gameState.currentQuestionText;
   revealBtn.disabled = !canReveal;
-  revealBtn.textContent = gameState.revealedAnswer ? 'Hide Answer' : 'Reveal Answer';
-  revealBtn.className = gameState.revealedAnswer ? 'btn-ghost' : 'btn-green';
+  revealBtn.textContent = gameState.revealedAnswer !== null ? 'Hide Answer' : 'Reveal Answer';
+  revealBtn.className = gameState.revealedAnswer !== null ? 'btn-ghost' : 'btn-green';
 }
 
 function prevHostQuestion() { if (!activePreset) return; hostQIdx = Math.max(0, hostQIdx - 1); renderPresetPanel(); }
@@ -1119,9 +1144,13 @@ async function pmShowList() {
   ).join('');
 }
 
+function blankQuestion() {
+  return { id: uid(), text: '', answer: '', mediaType: null, mediaFile: null, answerMediaType: null, answerMediaFile: null };
+}
+
 function pmShowCreate() {
   pmEditing = null;
-  pmQuestions = [{ id: uid(), text: '', answer: '', mediaType: null, mediaFile: null }];
+  pmQuestions = [blankQuestion()];
   document.getElementById('pm-name-input').value = '';
   document.getElementById('preset-modal-title').textContent = 'New Preset';
   hide('pm-list-view'); show('pm-editor-view');
@@ -1132,7 +1161,7 @@ async function pmEditPreset(id) {
   const res = await fetch(`/api/presets/${id}`);
   const preset = await res.json();
   pmEditing = preset;
-  pmQuestions = preset.questions.length ? preset.questions.map(q => ({...q})) : [{ id: uid(), text: '', answer: '', mediaType: null, mediaFile: null }];
+  pmQuestions = preset.questions.length ? preset.questions.map(q => ({ ...blankQuestion(), ...q })) : [blankQuestion()];
   document.getElementById('pm-name-input').value = preset.name;
   document.getElementById('preset-modal-title').textContent = 'Edit Preset';
   hide('pm-list-view'); show('pm-editor-view');
@@ -1149,31 +1178,43 @@ function pmRenderQuestions() {
       </div>
       <div class="q-editor-body">
         <textarea placeholder="Question text…" oninput="pmQuestions[${i}].text=this.value">${esc(q.text)}</textarea>
-        <div class="q-answer-row">
-          <span class="q-answer-label">Answer</span>
+        <div id="pm-qmedia-${i}">${pmMediaHTML(q, i, 'q')}</div>
+        <div class="q-answer-row" style="margin-top:4px">
+          <span class="q-answer-label">Answer text</span>
           <input type="text" placeholder="Correct answer…" value="${esc(q.answer)}" oninput="pmQuestions[${i}].answer=this.value" />
         </div>
-        <div id="pm-media-${i}">${pmMediaHTML(q, i)}</div>
+        <div class="answer-media-section">
+          <div class="answer-media-label-text">Answer image / video</div>
+          <div id="pm-amedia-${i}">${pmMediaHTML(q, i, 'a')}</div>
+        </div>
       </div>
     </div>
   `).join('');
 }
 
-function pmMediaHTML(q, i) {
-  if (q.mediaFile) {
-    const url = `/uploads/${q.mediaFile}`;
+function pmMediaHTML(q, i, slot) {
+  const isAnswer = slot === 'a';
+  const file = isAnswer ? q.answerMediaFile : q.mediaFile;
+  const mtype = isAnswer ? q.answerMediaType : q.mediaType;
+  const containerId = isAnswer ? `pm-amedia-${i}` : `pm-qmedia-${i}`;
+  if (file) {
+    const url = `/uploads/${file}`;
+    const preview = mtype === 'video'
+      ? `<video src="${url}" muted style="width:100%;height:100%;object-fit:cover"></video>`
+      : `<img src="${url}" alt="" />`;
     return `<div style="display:flex;align-items:center;gap:10px">
-      <div class="media-thumb">${q.mediaType==='video'?`<video src="${url}" muted></video>`:`<img src="${url}" alt="" />`}<button class="media-del" onclick="pmRemoveMedia(${i})">×</button></div>
+      <div class="media-thumb">${preview}<button class="media-del" onclick="pmRemoveMedia(${i},'${slot}')">×</button></div>
     </div>`;
   }
+  const label = isAnswer ? '📎 Add Answer Image/Video' : '📎 Add Question Image/Video';
   return `<div style="display:flex;align-items:center;gap:10px">
-    <label class="media-label"><input type="file" accept="image/*,video/*" onchange="pmUploadMedia(${i},this)" />📎 Add Image / Video</label>
-    <span id="pm-upload-status-${i}" class="uploading-text hidden">Uploading…</span>
+    <label class="media-label"><input type="file" accept="image/*,video/*" onchange="pmUploadMedia(${i},this,'${slot}')" />${label}</label>
+    <span id="pm-ustatus-${i}-${slot}" class="uploading-text hidden">Uploading…</span>
   </div>`;
 }
 
 function pmAddQuestion() {
-  pmQuestions.push({ id: uid(), text: '', answer: '', mediaType: null, mediaFile: null });
+  pmQuestions.push(blankQuestion());
   pmRenderQuestions();
   const body = document.getElementById('pm-questions-body');
   setTimeout(() => body.scrollTop = body.scrollHeight, 50);
@@ -1185,15 +1226,23 @@ function pmRemoveQ(i) {
   pmRenderQuestions();
 }
 
-async function pmRemoveMedia(i) {
+async function pmRemoveMedia(i, slot) {
   const q = pmQuestions[i];
-  if (q.mediaFile) { await fetch(`/api/uploads/${q.mediaFile}`, { method: 'DELETE' }); q.mediaFile = null; q.mediaType = null; }
-  document.getElementById(`pm-media-${i}`).innerHTML = pmMediaHTML(q, i);
+  const isAnswer = slot === 'a';
+  const fKey = isAnswer ? 'answerMediaFile' : 'mediaFile';
+  const tKey = isAnswer ? 'answerMediaType' : 'mediaType';
+  const cid = isAnswer ? `pm-amedia-${i}` : `pm-qmedia-${i}`;
+  if (q[fKey]) { await fetch(`/api/uploads/${q[fKey]}`, { method: 'DELETE' }); q[fKey] = null; q[tKey] = null; }
+  document.getElementById(cid).innerHTML = pmMediaHTML(q, i, slot);
 }
 
-async function pmUploadMedia(i, input) {
+async function pmUploadMedia(i, input, slot) {
   const file = input.files[0]; if (!file) return;
-  const statusEl = document.getElementById(`pm-upload-status-${i}`);
+  const isAnswer = slot === 'a';
+  const fKey = isAnswer ? 'answerMediaFile' : 'mediaFile';
+  const tKey = isAnswer ? 'answerMediaType' : 'mediaType';
+  const cid = isAnswer ? `pm-amedia-${i}` : `pm-qmedia-${i}`;
+  const statusEl = document.getElementById(`pm-ustatus-${i}-${slot}`);
   if (statusEl) statusEl.classList.remove('hidden');
 
   let presetId = pmEditing ? pmEditing.id : null;
@@ -1210,8 +1259,8 @@ async function pmUploadMedia(i, input) {
   if (statusEl) statusEl.classList.add('hidden');
   if (!r.ok) { showToast('Upload failed'); return; }
   const { filename, mediaType } = await r.json();
-  pmQuestions[i].mediaFile = filename; pmQuestions[i].mediaType = mediaType;
-  document.getElementById(`pm-media-${i}`).innerHTML = pmMediaHTML(pmQuestions[i], i);
+  pmQuestions[i][fKey] = filename; pmQuestions[i][tKey] = mediaType;
+  document.getElementById(cid).innerHTML = pmMediaHTML(pmQuestions[i], i, slot);
 }
 
 async function pmSave() {

@@ -133,7 +133,7 @@ function blankPresetState() {
   return { presetId: null, presetName: null, presetQuestionCount: 0,
     currentQuestionIndex: null, currentQuestionText: null,
     currentQuestionMediaType: null, currentQuestionMediaFile: null,
-    revealedAnswer: null };
+    revealedAnswer: null, revealedAnswerMediaType: null, revealedAnswerMediaFile: null };
 }
 
 function getRoomData(room) {
@@ -390,6 +390,8 @@ io.on('connection', (socket) => {
     const q = idx != null ? preset.questions[idx] : null;
     if (!q) return;
     room.state.revealedAnswer = q.answer || '';
+    room.state.revealedAnswerMediaType = q.answerMediaType || null;
+    room.state.revealedAnswerMediaFile = q.answerMediaFile || null;
     io.to(code).emit('room-update', getRoomData(room));
   });
 
@@ -398,6 +400,8 @@ io.on('connection', (socket) => {
     const room = rooms.get(code);
     if (!room || room.adminId !== socket.id) return;
     room.state.revealedAnswer = null;
+    room.state.revealedAnswerMediaType = null;
+    room.state.revealedAnswerMediaFile = null;
     io.to(code).emit('room-update', getRoomData(room));
   });
 
